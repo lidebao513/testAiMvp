@@ -1,0 +1,10 @@
+langchain
+openai
+python-dotenv
+unstructured
+pdf2image
+pytesseract
+python-docx
+python-magic
+python-magic-bin
+pyyaml

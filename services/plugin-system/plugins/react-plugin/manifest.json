@@ -1,0 +1,56 @@
+{
+  "name": "React Testing Plugin",
+  "description": "React测试生成插件",
+  "category": "frontend",
+  "platform": "react",
+  "version": "1.0.0",
+  "author": "AI Test Engineer Team",
+  "templates": [
+    {
+      "id": "react-component-test",
+      "name": "React组件测试模板",
+      "type": "unit",
+      "description": "生成React组件的单元测试",
+      "content": "import React from 'react';\nimport { render, screen, fireEvent } from '@testing-library/react';\nimport { {component_name} } from './{component_path}';\n\ndescribe('{component_name}', () => {\n  test('renders correctly', () => {\n    render(<{component_name} />);\n    expect(screen.getByText('{expected_text}')).toBeInTheDocument();\n  });\n\n  test('handles user interaction', () => {\n    render(<{component_name} />);\n    const button = screen.getByRole('button');\n    fireEvent.click(button);\n    expect(screen.getByText('{expected_text_after_click}')).toBeInTheDocument();\n  });\n});"
+    },
+    {
+      "id": "react-hook-test",
+      "name": "React Hook测试模板",
+      "type": "unit",
+      "description": "生成React Hook的单元测试",
+      "content": "import { renderHook, act } from '@testing-library/react-hooks';\nimport { {hook_name} } from './{hook_path}';\n\ndescribe('{hook_name}', () => {\n  test('initial state', () => {\n    const { result } = renderHook(() => {hook_name}());\n    expect(result.current.{state_name}).toBe({initial_value});\n  });\n\n  test('updates state', () => {\n    const { result } = renderHook(() => {hook_name}());\n    act(() => {\n      result.current.{setter_name}({new_value});\n    });\n    expect(result.current.{state_name}).toBe({new_value});\n  });\n});"
+    }
+  ],
+  "strategies": [
+    {
+      "id": "react-component-strategy",
+      "name": "React组件测试策略",
+      "type": "component",
+      "description": "针对React组件的测试策略",
+      "configuration": {
+        "test_libraries": ["@testing-library/react", "jest"],
+        "coverage_threshold": {
+          "branches": 80,
+          "functions": 80,
+          "lines": 80,
+          "statements": 80
+        },
+        "mock_external_dependencies": true,
+        "test_types": ["rendering", "interaction", "state-management"]
+      }
+    },
+    {
+      "id": "react-e2e-strategy",
+      "name": "React E2E测试策略",
+      "type": "e2e",
+      "description": "针对React应用的端到端测试策略",
+      "configuration": {
+        "test_libraries": ["playwright"],
+        "browser_types": ["chromium", "firefox", "webkit"],
+        "screen_sizes": ["mobile", "tablet", "desktop"],
+        "wait_strategy": "networkidle",
+        "screenshot_on_failure": true
+      }
+    }
+  ]
+}

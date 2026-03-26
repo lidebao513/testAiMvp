@@ -1,0 +1,55 @@
+{
+  "name": "Python Testing Plugin",
+  "description": "Python测试生成插件",
+  "category": "backend",
+  "platform": "python",
+  "version": "1.0.0",
+  "author": "AI Test Engineer Team",
+  "templates": [
+    {
+      "id": "python-unit-test",
+      "name": "Python单元测试模板",
+      "type": "unit",
+      "description": "生成Python函数的单元测试",
+      "content": "import unittest\nfrom {module_path} import {function_name}\n\nclass Test{function_name}(unittest.TestCase):\n    def test_normal_case(self):\n        result = {function_name}({test_input})\n        self.assertEqual(result, {expected_output})\n    \n    def test_edge_case(self):\n        result = {function_name}({edge_input})\n        self.assertEqual(result, {expected_edge_output})\n    \n    def test_error_case(self):\n        with self.assertRaises({expected_exception}):\n            {function_name}({error_input})\n\nif __name__ == '__main__':\n    unittest.main()"
+    },
+    {
+      "id": "python-api-test",
+      "name": "Python API测试模板",
+      "type": "api",
+      "description": "生成Python API的测试",
+      "content": "import pytest\nimport requests\n\nclass Test{api_name}:\n    def test_get_request(self):\n        response = requests.get('{api_endpoint}')\n        assert response.status_code == 200\n        assert '{expected_key}' in response.json()\n    \n    def test_post_request(self):\n        payload = {payload}\n        response = requests.post('{api_endpoint}', json=payload)\n        assert response.status_code == 201\n        assert '{expected_key}' in response.json()\n    \n    def test_error_case(self):\n        response = requests.get('{api_endpoint}/invalid')\n        assert response.status_code == 404"
+    }
+  ],
+  "strategies": [
+    {
+      "id": "python-unit-strategy",
+      "name": "Python单元测试策略",
+      "type": "unit",
+      "description": "针对Python代码的单元测试策略",
+      "configuration": {
+        "test_libraries": ["pytest", "unittest"],
+        "coverage_threshold": {
+          "branches": 80,
+          "functions": 80,
+          "lines": 80,
+          "statements": 80
+        },
+        "mock_external_dependencies": true,
+        "test_types": ["normal", "edge", "error"]
+      }
+    },
+    {
+      "id": "python-integration-strategy",
+      "name": "Python集成测试策略",
+      "type": "integration",
+      "description": "针对Python应用的集成测试策略",
+      "configuration": {
+        "test_libraries": ["pytest", "requests"],
+        "database_mocking": false,
+        "external_service_mocking": true,
+        "test_environments": ["development", "staging"]
+      }
+    }
+  ]
+}

@@ -1,0 +1,130 @@
+version: '3.8'
+
+services:
+  parser-service:
+    build: ./services/parser-service
+    ports:
+      - "8001:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - AI_MODEL=${AI_MODEL}
+    depends_on:
+      - rabbitmq
+
+  generator-service:
+    build: ./services/generator-service
+    ports:
+      - "8002:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - AI_MODEL=${AI_MODEL}
+    depends_on:
+      - rabbitmq
+
+  executor-service:
+    build: ./services/executor-service
+    ports:
+      - "8003:8000"
+    environment:
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - rabbitmq
+
+  analytics-service:
+    build: ./services/analytics-service
+    ports:
+      - "8004:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - AI_MODEL=${AI_MODEL}
+    depends_on:
+      - rabbitmq
+
+  knowledge-service:
+    build: ./services/knowledge-service
+    ports:
+      - "8005:8000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017
+      - MILVUS_URI=milvus:19530
+    depends_on:
+      - mongo
+      - milvus
+      - rabbitmq
+
+  self-healing-service:
+    build: ./services/self-healing-service
+    ports:
+      - "8006:8000"
+    depends_on:
+      - rabbitmq
+
+  defect-prediction-service:
+    build: ./services/defect-prediction-service
+    ports:
+      - "8007:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      - rabbitmq
+
+  self-evolution-service:
+    build: ./services/self-evolution-service
+    ports:
+      - "8008:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - MONGO_URI=mongodb://mongo:27017
+    depends_on:
+      - mongo
+      - rabbitmq
+
+  ab-testing-service:
+    build: ./services/ab-testing-service
+    ports:
+      - "8009:8000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017
+    depends_on:
+      - mongo
+      - rabbitmq
+
+  test-quality-scorer:
+    build: ./services/test-quality-scorer
+    ports:
+      - "8010:8000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017
+    depends_on:
+      - mongo
+      - rabbitmq
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  milvus:
+    image: milvusdb/milvus:latest
+    ports:
+      - "19530:19530"
+      - "9091:9091"
+    volumes:
+      - milvus-data:/var/lib/milvus
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+
+volumes:
+  mongo-data:
+  milvus-data:
+  rabbitmq-data:

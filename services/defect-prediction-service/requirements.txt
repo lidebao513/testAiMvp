@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+openai
+numpy
+pandas
+scikit-learn
+tensorflow
+networkx
+pydantic
+python-dotenv
+matplotlib
+seaborn
+GitPython
