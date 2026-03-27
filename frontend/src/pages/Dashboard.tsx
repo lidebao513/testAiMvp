@@ -9,8 +9,10 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     // 初始化测试通过率趋势图
+    let passRateChart: echarts.ECharts | null = null
+    let handlePassRateResize: (() => void) | null = null
     if (passRateRef.current) {
-      const passRateChart = echarts.init(passRateRef.current)
+      passRateChart = echarts.init(passRateRef.current)
       const passRateOption = {
         title: {
           text: '测试通过率趋势',
@@ -46,14 +48,17 @@ const Dashboard: React.FC = () => {
       passRateChart.setOption(passRateOption)
 
       // 响应式调整
-      window.addEventListener('resize', () => {
-        passRateChart.resize()
-      })
+      handlePassRateResize = () => {
+        passRateChart?.resize()
+      }
+      window.addEventListener('resize', handlePassRateResize)
     }
 
     // 初始化覆盖率变化曲线
+    let coverageChart: echarts.ECharts | null = null
+    let handleCoverageResize: (() => void) | null = null
     if (coverageRef.current) {
-      const coverageChart = echarts.init(coverageRef.current)
+      coverageChart = echarts.init(coverageRef.current)
       const coverageOption = {
         title: {
           text: '覆盖率变化曲线',
@@ -89,14 +94,17 @@ const Dashboard: React.FC = () => {
       coverageChart.setOption(coverageOption)
 
       // 响应式调整
-      window.addEventListener('resize', () => {
-        coverageChart.resize()
-      })
+      handleCoverageResize = () => {
+        coverageChart?.resize()
+      }
+      window.addEventListener('resize', handleCoverageResize)
     }
 
     // 初始化缺陷发现率统计
+    let defectChart: echarts.ECharts | null = null
+    let handleDefectResize: (() => void) | null = null
     if (defectRef.current) {
-      const defectChart = echarts.init(defectRef.current)
+      defectChart = echarts.init(defectRef.current)
       const defectOption = {
         title: {
           text: '缺陷发现率统计',
@@ -132,9 +140,35 @@ const Dashboard: React.FC = () => {
       defectChart.setOption(defectOption)
 
       // 响应式调整
-      window.addEventListener('resize', () => {
-        defectChart.resize()
-      })
+      handleDefectResize = () => {
+        defectChart?.resize()
+      }
+      window.addEventListener('resize', handleDefectResize)
+    }
+
+    // 清理函数
+    return () => {
+      // 移除事件监听器
+      if (handlePassRateResize) {
+        window.removeEventListener('resize', handlePassRateResize)
+      }
+      if (passRateChart) {
+        passRateChart.dispose()
+      }
+      
+      if (handleCoverageResize) {
+        window.removeEventListener('resize', handleCoverageResize)
+      }
+      if (coverageChart) {
+        coverageChart.dispose()
+      }
+      
+      if (handleDefectResize) {
+        window.removeEventListener('resize', handleDefectResize)
+      }
+      if (defectChart) {
+        defectChart.dispose()
+      }
     }
   }, [])
 
