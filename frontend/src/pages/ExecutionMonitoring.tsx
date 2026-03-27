@@ -58,11 +58,19 @@ const ExecutionMonitoring: React.FC = () => {
   const [selectedLog, setSelectedLog] = useState<ExecutionLog | null>(null)
   const [isScreenshotModalVisible, setIsScreenshotModalVisible] = useState(false)
   const durationRef = useRef<HTMLDivElement>(null)
+  const chartRef = useRef<echarts.ECharts | null>(null)
 
   useEffect(() => {
     // 初始化执行时长分布图表
     if (durationRef.current) {
+      // 销毁旧实例
+      if (chartRef.current) {
+        chartRef.current.dispose()
+      }
+      
       const durationChart = echarts.init(durationRef.current)
+      chartRef.current = durationChart
+      
       const durationOption = {
         title: {
           text: '执行时长分布',
@@ -92,9 +100,19 @@ const ExecutionMonitoring: React.FC = () => {
       durationChart.setOption(durationOption)
 
       // 响应式调整
-      window.addEventListener('resize', () => {
+      const handleResize = () => {
         durationChart.resize()
-      })
+      }
+      window.addEventListener('resize', handleResize)
+      
+      // 清理函数
+      return () => {
+        window.removeEventListener('resize', handleResize)
+        if (chartRef.current) {
+          chartRef.current.dispose()
+          chartRef.current = null
+        }
+      }
     }
   }, [executionLogs])
 

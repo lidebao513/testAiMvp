@@ -49,6 +49,7 @@ class DefectPredictor:
             api_key (str): OpenAI API密钥
             repo_path (str, optional): 代码仓库路径，默认为"."
         """
+        self.api_key = api_key
         openai.api_key = api_key
         self.repo_path = repo_path
         self.repo = None
@@ -471,24 +472,55 @@ Format the output as a JSON object."""
         # 计算节点中心性
         centrality = nx.degree_centrality(graph)
         
-        # 计算依赖深度
+        # 计算依赖深度（优化版本，避免计算所有路径）
         depths = {}
         for node in graph.nodes:
             try:
-                # 计算从该节点出发的最长路径长度
-                longest_path = max(nx.all_simple_paths(graph, node, n) for n in graph.nodes if nx.has_path(graph, node, n)), key=len
-                depths[node] = len(longest_path[0]) - 1 if longest_path else 0
+                # 使用拓扑排序计算深度，避免计算所有路径
+                if nx.is_directed_acyclic_graph(graph):
+                    # 对于DAG，使用拓扑排序计算深度
+                    topological_order = list(nx.topological_sort(graph))
+                    depth_map = {node: 0 for node in graph.nodes}
+                    for n in topological_order:
+                        for predecessor in graph.predecessors(n):
+                            depth_map[n] = max(depth_map[n], depth_map[predecessor] + 1)
+                    depths[node] = depth_map[node]
+                else:
+                    # 对于非DAG，使用简单的BFS计算深度
+                    max_depth = 0
+                    visited = set()
+                    queue = [(node, 0)]
+                    while queue:
+                        current, depth = queue.pop(0)
+                        if current in visited:
+                            continue
+                        visited.add(current)
+                        max_depth = max(max_depth, depth)
+                        for successor in graph.successors(current):
+                            if successor not in visited:
+                                queue.append((successor, depth + 1))
+                    depths[node] = max_depth
             except Exception:
                 depths[node] = 0
         
         # 识别关键节点（高中心性）
         key_nodes = [node for node, score in centrality.items() if score > 0.1]
         
+        # 计算环（仅当图不是DAG时）
+        cycles = []
+        if not nx.is_directed_acyclic_graph(graph):
+            try:
+                # 限制环的数量，避免性能问题
+                cycle_generator = nx.simple_cycles(graph)
+                cycles = [next(cycle_generator) for _ in range(10)]  # 最多获取10个环
+            except StopIteration:
+                pass
+        
         return {
             "centrality": centrality,
             "depths": depths,
             "key_nodes": key_nodes,
-            "cycles": list(nx.simple_cycles(graph)) if nx.is_directed_acyclic_graph(graph) else []
+            "cycles": cycles
         }
     
     def get_defects(self) -> List[DefectReport]:
