@@ -26,9 +26,12 @@ const Dashboard: React.FC = () => {
           data: ['1月', '2月', '3月', '4月', '5月', '6月']
         },
         yAxis: {
-          type: 'percent',
+          type: 'value',
           min: 0,
-          max: 100
+          max: 100,
+          axisLabel: {
+            formatter: '{value}%'
+          }
         },
         series: [{
           data: [85, 88, 92, 90, 95, 97],
@@ -72,9 +75,12 @@ const Dashboard: React.FC = () => {
           data: ['1月', '2月', '3月', '4月', '5月', '6月']
         },
         yAxis: {
-          type: 'percent',
+          type: 'value',
           min: 0,
-          max: 100
+          max: 100,
+          axisLabel: {
+            formatter: '{value}%'
+          }
         },
         series: [{
           data: [65, 70, 75, 80, 85, 88],
